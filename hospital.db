@@ -1,0 +1,78 @@
+PRAGMA foreign_keys = ON;
+drop table if exists Patients;
+
+create table Patients (
+
+idPatients INTEGER PRIMARY KEY AUTOINCREMENT,
+fullName varchar(30),
+age integer,
+gender varchar(30),
+numPass varchar(30)
+);
+
+drop table if exists DoctorSpeciality;
+
+create table DoctorSpeciality (
+idDoctorSpeciality INTEGER PRIMARY KEY AUTOINCREMENT,
+Speciality varchar(40)
+);
+
+drop table if exists Doctors;
+
+create table Doctors (
+idDoctor INTEGER PRIMARY KEY AUTOINCREMENT,
+idDoctorSpeciality INTEGER,
+fullDocName varchar(30),
+FOREIGN KEY (idDoctorSpeciality) REFERENCES DoctorSpeciality (idDoctorSpeciality) on DELETE CASCADE ON UPDATE CASCADE
+);
+
+drop table if exists DoctorSchedule;
+
+create table DoctorSchedule (
+idDoctor INTEGER,
+idDoctorSchedule INTEGER PRIMARY KEY AUTOINCREMENT,
+VisitDate DATE,
+VisitBeginning time,
+VisitEnding time,
+foreign key (idDoctor) REFERENCES Doctors (idDoctor) on DELETE CASCADE ON UPDATE CASCADE
+);
+
+drop table if exists Attends;
+
+create table Attends (
+ idAttends INTEGER PRIMARY KEY AUTOINCREMENT,
+ idPatients integer,
+ idDoctorSchedule integer not null,
+ AttendDate date,
+ AttendTime time,
+ Diagnosis varchar(30),
+foreign key (idPatients) references Patients(idPatients) on delete cascade on update cascade,
+foreign key (idDoctorSchedule) references DoctorSchedule (idDoctorSchedule) on delete cascade on update cascade
+);
+
+drop table if exists Hours;
+
+create table Hours (
+numb integer
+);
+
+drop view if exists timing;
+
+create view timing as
+select D.idDoctor as idDoc, idDoctorSchedule as schedule, VisitDate as date,
+VisitBeginning + H.numb as hour
+from DoctorSchedule
+cross join Hours H
+join Doctors D on DoctorSchedule.idDoctor=D.idDoctor
+where hour < 18 and hour <= DoctorSchedule.VisitEnding;
+
+
+
+
+
+
+
+
+
+
+
