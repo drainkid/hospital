@@ -64,12 +64,34 @@ FROM Attends
 WHERE idAttends = {num};
 ''')
 
-    
+# Самый продуктивный работник
+def bestWorker():
+   ds = pd.read_sql(''' select fullDocName, count(*) as количество from Doctors
+   join DoctorSchedule using (idDoctor)
+   group by fullDocName 
+   having count(fullDocName) = (select count(idDoctor) from DoctorSchedule
+   group by idDoctor order by count(idDoctor) desc limit 1)
+
+    ''', con)
+
+   print(ds)
+
+#Свободные окошки записи для стоматологов
+def dienSchel():
+ ds = pd.read_sql('''with tabl as (select idDoctor, idDoctorSchedule from DoctorSchedule where VisitBeginning > 15 and idDoctorSchedule = 9 )
+ select idAttends, AttendDate, AttendTime idDoctorSchedule, idDoctor from tabl 
+ join Attends g using (idDoctorSchedule)  where idPatients is null
+ ''', con)
+ print(ds)
+
+
+
+
 
 docName()
 SpecName()
 Surmembers()
 DocAmount()
 procrec()
-#delAttend(1)
-
+delAttend(1)
+dienSchel()
